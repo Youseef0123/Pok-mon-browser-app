@@ -1,7 +1,6 @@
 /**
  * Extracts the numeric ID from a PokéAPI resource URL.
- * E.g., "https://pokeapi.co/api/v2/pokemon/4/" -> 4
- */
+ **/
 export function extractIdFromUrl(url: string): number {
   if (!url) {
     console.warn(`extractIdFromUrl: could not parse id from "${url}"`)

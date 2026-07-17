@@ -21,7 +21,7 @@ export function TypeBadge({ type }: TypeBadgeProps) {
     rock: 'bg-yellow-200 text-yellow-900 border-yellow-300',
     ghost: 'bg-violet-100 text-violet-800 border-violet-200',
     dragon: 'bg-violet-200 text-violet-900 border-violet-300',
-    dark: 'bg-gray-850 text-gray-100 border-gray-950',
+    dark: 'bg-gray-700 text-gray-100 border-gray-800',
     steel: 'bg-slate-200 text-slate-800 border-slate-300',
     fairy: 'bg-pink-100 text-pink-800 border-pink-200',
   }
