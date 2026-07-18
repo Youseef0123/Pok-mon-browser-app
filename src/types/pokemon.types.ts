@@ -48,9 +48,7 @@ export interface PokemonSprites {
 export interface PokemonDetail {
   id: number
   name: string
-  /** Raw API value in decimetres, NOT metres. Convert at the display component level. */
   height: number
-  /** Raw API value in hectograms, NOT kilograms. Convert at the display component level. */
   weight: number
   base_experience: number
   sprites: PokemonSprites
