@@ -1,32 +1,55 @@
-# React + TypeScript + Vite
+# ⚡ Pokédex
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Frontend assessment project — a Pokémon browser built with React + TypeScript.
 
-Currently, two official plugins are available:
+**Live:** _[add link after deploying]_
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## What's in it
 
-## React Compiler
+Three ways to browse the list, switchable from the top toggle:
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Page Controls** — normal pagination with page numbers
+- **Load More** — button-based, appends the next batch
+- **Infinite Scroll** — auto-loads on scroll. I virtualized this one with `@tanstack/react-virtual` so it doesn't render hundreds of DOM nodes as you scroll — this wasn't required but felt like the right way to do infinite scroll properly.
 
-## Expanding the Oxlint configuration
+Click any Pokémon and you get a real route (`/pokemon/:id`), not a modal, with stats, abilities, types, height/weight, etc.
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+## Stack
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+- Vite + React + TypeScript
+- React Router
+- TanStack React Query (data fetching/caching)
+- Axios
+- Tailwind
+- `@tanstack/react-virtual` for the infinite scroll grid
+
+## A few things worth mentioning
+
+- Height/weight from the API come in decimetres/hectograms, not m/kg — I convert them at the display level, kept the raw values in the type.
+- Load More and Infinite Scroll both use the same `usePokemonList` hook, but each passes a different `viewKey` so React Query doesn't mix up their cached pages when switching between them.
+- The infinite scroll view measures each row's real height instead of assuming a fixed one — cards render at different heights depending on screen size, so a fixed estimate caused overlapping rows on mobile until I fixed it.
+- Selected view + scroll position are kept across navigating to a detail page and back (view is stored in the URL, scroll position in memory).
+
+## Running it
+
+```bash
+npm install
+cp .env.example .env
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## Structure
+
+```
+src/
+├── services/     API calls
+├── types/        TS interfaces
+├── hooks/        React Query hooks
+├── utils/
+├── components/
+│   ├── ui/       generic, no domain knowledge
+│   ├── shared/   Pokémon-aware, reused across views
+│   └── common/   toggle, error boundary
+├── views/        the three list views
+└── pages/        HomePage, DetailPage
+```
