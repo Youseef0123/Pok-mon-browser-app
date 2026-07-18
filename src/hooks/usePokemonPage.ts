@@ -4,9 +4,6 @@ import type { PokemonListResponse } from '../types/pokemon.types'
 
 /**
  * Fetches a single page of the Pokémon list for direct page-number
- * navigation (e.g. jumping to page 5), as used by the Pagination View.
- * Unlike `usePokemonList`, which accumulates pages, this hook always
- * fetches exactly one page and replaces the previous page's data.
  */
 export function usePokemonPage(page: number, limit: number) {
   const offset = (page - 1) * limit

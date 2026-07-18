@@ -4,9 +4,6 @@ import type { PokemonDetail } from '../types/pokemon.types'
 
 /**
  * Fetches details for a single Pokémon by id or name.
- *
- * `data` will be `undefined` while the query is loading, if it errors, or
- * while it is disabled (i.e. `id` is falsy).
  */
 export function usePokemonDetail(id: string | number) {
   return useQuery<PokemonDetail, Error>({
