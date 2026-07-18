@@ -1,11 +1,46 @@
-import { useState } from 'react'
+import { useEffect, useRef } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { ViewToggle, type ViewMode } from '../components/common/ViewToggle'
 import PaginationView from '../views/PaginationView'
 import LoadMoreView from '../views/LoadMoreView'
 import InfiniteScrollView from '../views/InfiniteScrollView'
+import { saveScrollPosition, getScrollPosition } from '../utils/scrollMemory'
 
 export function HomePage() {
-  const [activeView, setActiveView] = useState<ViewMode>('pagination')
+  const [searchParams, setSearchParams] = useSearchParams()
+  const activeView = (searchParams.get('view') as ViewMode) || 'pagination'
+
+  const setActiveView = (view: ViewMode) => {
+    setSearchParams({ view }, { replace: false })
+  }
+
+  // Continuously track scroll position for the current view, throttled to ~100ms
+  const scrollTimeoutRef = useRef<number | null>(null)
+  useEffect(() => {
+    const handleScroll = () => {
+      if (scrollTimeoutRef.current !== null) return
+      scrollTimeoutRef.current = window.setTimeout(() => {
+        saveScrollPosition(activeView, window.scrollY)
+        scrollTimeoutRef.current = null
+      }, 100)
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+      if (scrollTimeoutRef.current !== null) {
+        window.clearTimeout(scrollTimeoutRef.current)
+      }
+    }
+  }, [activeView])
+
+  // Restore the saved scroll position for this view once its content has rendered
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      window.scrollTo(0, getScrollPosition(activeView))
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [activeView])
 
   // Map view modes to their respective subtitle text
   const getSubtitle = (view: ViewMode): string => {
@@ -69,4 +104,3 @@ export function HomePage() {
 }
 
 export default HomePage
-

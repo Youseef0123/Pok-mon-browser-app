@@ -1,4 +1,5 @@
-import { useParams, Link } from 'react-router-dom'
+import { useEffect } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
 import ErrorState from '../components/ui/ErrorState'
 import DetailSkeleton from '../components/ui/DetailSkeleton'
 import TypeBadge from '../components/shared/TypeBadge'
@@ -13,16 +14,21 @@ const statLabelMap: Record<string, string> = {
   speed: 'Speed',
 }
 
-
-
 export function DetailPage() {
   const { id } = useParams<{ id: string }>()
-  const { data, isLoading, isError, error, refetch } = usePokemonDetail(id ?? '')
+  const navigate = useNavigate()
+  const { data, isLoading, isError, error, refetch } = usePokemonDetail(
+    id ?? '',
+  )
+
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [id])
 
   // 1. Loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen w-full bg-gradient-to-b from-purple-100 via-pink-50 to-white py-12 px-4 sm:px-6 lg:px-8">
+      <div className="w-full min-h-screen px-4 py-12 bg-gradient-to-b from-purple-100 via-pink-50 to-white sm:px-6 lg:px-8">
         <DetailSkeleton />
       </div>
     )
@@ -31,17 +37,18 @@ export function DetailPage() {
   // 2. Error state
   if (isError || !data) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-purple-100 via-pink-50 to-white py-12 px-4 gap-6">
+      <div className="flex flex-col items-center justify-center min-h-screen gap-6 px-4 py-12 bg-gradient-to-b from-purple-100 via-pink-50 to-white">
         <ErrorState
           message={error?.message ?? 'Pokémon details could not be found.'}
           onRetry={refetch}
         />
-        <Link
-          to="/"
+        <button
+          type="button"
+          onClick={() => navigate(-1)}
           className="inline-flex items-center gap-1.5 px-4 py-2 border border-gray-200 rounded-lg bg-white text-sm font-semibold text-gray-700 hover:text-gray-950 hover:border-gray-300 shadow-sm transition-all"
         >
           ← Back to List
-        </Link>
+        </button>
       </div>
     )
   }
@@ -49,24 +56,27 @@ export function DetailPage() {
   // 3. Success state
   const capitalizedName = data.name.charAt(0).toUpperCase() + data.name.slice(1)
   const formattedId = `#${String(data.id).padStart(3, '0')}`
-  const spriteUrl = data.sprites.other?.['official-artwork']?.front_default || data.sprites.front_default
+  const spriteUrl =
+    data.sprites.other?.['official-artwork']?.front_default ||
+    data.sprites.front_default
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-b from-purple-100 via-pink-50 to-white py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-2xl mx-auto flex flex-col items-start gap-4">
-        {/* Back Link Button */}
-        <Link
-          to="/"
+    <div className="w-full min-h-screen px-4 py-12 bg-gradient-to-b from-purple-100 via-pink-50 to-white sm:px-6 lg:px-8">
+      <div className="flex flex-col items-start max-w-2xl gap-4 mx-auto">
+        {/* Back Button */}
+        <button
+          type="button"
+          onClick={() => navigate(-1)}
           className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-gray-200/60 rounded bg-white text-xs font-semibold text-gray-700 hover:text-gray-950 hover:border-gray-300 shadow-sm transition-all"
         >
           ← Back to List
-        </Link>
+        </button>
 
         {/* Pokémon Details Card */}
-        <main className="w-full bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
+        <main className="w-full overflow-hidden bg-white border border-gray-100 shadow-md rounded-2xl">
           {/* Header Banner */}
-          <div className="bg-gradient-to-r from-purple-500 to-pink-500 py-8 px-6 text-center text-white">
-            <h2 className="text-2xl md:text-3xl font-extrabold flex items-center justify-center gap-2 tracking-tight">
+          <div className="px-6 py-8 text-center text-white bg-gradient-to-r from-purple-500 to-pink-500">
+            <h2 className="flex items-center justify-center gap-2 text-2xl font-extrabold tracking-tight md:text-3xl">
               ⚡ {capitalizedName}
             </h2>
             <span className="inline-block text-xs font-bold bg-white/20 text-white/95 px-2.5 py-0.5 rounded-full mt-2 tracking-wider">
@@ -75,16 +85,16 @@ export function DetailPage() {
           </div>
 
           {/* Card Body */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-6 md:p-8">
+          <div className="grid grid-cols-1 gap-8 p-6 md:grid-cols-2 md:p-8">
             {/* Left Column: Image, Type Badges, Height/Weight */}
             <div className="flex flex-col items-center">
               {/* Image Circle container */}
-              <div className="w-48 h-48 md:w-56 md:h-56 bg-gray-50 border border-gray-100 rounded-full flex items-center justify-center shadow-inner overflow-hidden">
+              <div className="flex items-center justify-center w-48 h-48 overflow-hidden border border-gray-100 rounded-full shadow-inner md:w-56 md:h-56 bg-gray-50">
                 {spriteUrl ? (
                   <img
                     src={spriteUrl}
                     alt={capitalizedName}
-                    className="w-36 h-36 md:w-44 md:h-44 object-contain hover:scale-105 transition-transform duration-300"
+                    className="object-contain transition-transform duration-300 w-36 h-36 md:w-44 md:h-44 hover:scale-105"
                   />
                 ) : (
                   /* Pokéball SVG Fallback */
@@ -104,7 +114,7 @@ export function DetailPage() {
               </div>
 
               {/* Type Badges */}
-              <div className="flex flex-wrap gap-2 justify-center mt-5">
+              <div className="flex flex-wrap justify-center gap-2 mt-5">
                 {data.types.map((t) => (
                   <TypeBadge key={t.slot} type={t.type.name} />
                 ))}
@@ -112,8 +122,8 @@ export function DetailPage() {
 
               {/* Height / Weight metrics (converted) */}
               <div className="grid grid-cols-2 gap-4 mt-6 w-full max-w-[280px]">
-                <div className="flex flex-col items-center justify-center p-3 bg-gray-50/70 border border-gray-100 rounded-xl">
-                  <span className="text-gray-400 text-xs font-bold flex items-center gap-1">
+                <div className="flex flex-col items-center justify-center p-3 border border-gray-100 bg-gray-50/70 rounded-xl">
+                  <span className="flex items-center gap-1 text-xs font-bold text-gray-400">
                     <svg
                       className="w-3.5 h-3.5"
                       fill="none"
@@ -130,13 +140,13 @@ export function DetailPage() {
                     </svg>
                     Height
                   </span>
-                  <span className="text-gray-900 font-extrabold text-sm md:text-base mt-1">
+                  <span className="mt-1 text-sm font-extrabold text-gray-900 md:text-base">
                     {(data.height / 10).toFixed(1)} m
                   </span>
                 </div>
 
-                <div className="flex flex-col items-center justify-center p-3 bg-gray-50/70 border border-gray-100 rounded-xl">
-                  <span className="text-gray-400 text-xs font-bold flex items-center gap-1">
+                <div className="flex flex-col items-center justify-center p-3 border border-gray-100 bg-gray-50/70 rounded-xl">
+                  <span className="flex items-center gap-1 text-xs font-bold text-gray-400">
                     <svg
                       className="w-3.5 h-3.5"
                       fill="none"
@@ -153,7 +163,7 @@ export function DetailPage() {
                     </svg>
                     Weight
                   </span>
-                  <span className="text-gray-900 font-extrabold text-sm md:text-base mt-1">
+                  <span className="mt-1 text-sm font-extrabold text-gray-900 md:text-base">
                     {(data.weight / 10).toFixed(1)} kg
                   </span>
                 </div>
@@ -164,25 +174,29 @@ export function DetailPage() {
             <div className="flex flex-col justify-between gap-6">
               {/* Base Stats */}
               <div>
-                <h3 className="font-bold text-gray-900 text-sm md:text-base border-b border-gray-100 pb-2 mb-3">
+                <h3 className="pb-2 mb-3 text-sm font-bold text-gray-900 border-b border-gray-100 md:text-base">
                   Base Stats
                 </h3>
                 <div className="space-y-2.5">
                   {data.stats.map((s) => {
-                    const label = statLabelMap[s.stat.name.toLowerCase()] || s.stat.name
+                    const label =
+                      statLabelMap[s.stat.name.toLowerCase()] || s.stat.name
                     const percentage = Math.min(100, (s.base_stat / 150) * 100)
                     return (
-                      <div key={s.stat.name} className="flex items-center text-xs md:text-sm">
-                        <span className="w-20 text-gray-500 font-semibold truncate">
+                      <div
+                        key={s.stat.name}
+                        className="flex items-center text-xs md:text-sm"
+                      >
+                        <span className="w-20 font-semibold text-gray-500 truncate">
                           {label}
                         </span>
-                        <div className="flex-1 bg-gray-100 h-2 rounded-full overflow-hidden mx-3">
+                        <div className="flex-1 h-2 mx-3 overflow-hidden bg-gray-100 rounded-full">
                           <div
-                            className="bg-gray-900 h-full rounded-full transition-all duration-500 ease-out"
+                            className="h-full transition-all duration-500 ease-out bg-gray-900 rounded-full"
                             style={{ width: `${percentage}%` }}
                           />
                         </div>
-                        <span className="w-8 text-right font-bold text-gray-700">
+                        <span className="w-8 font-bold text-right text-gray-700">
                           {s.base_stat}
                         </span>
                       </div>
@@ -193,7 +207,7 @@ export function DetailPage() {
 
               {/* Abilities */}
               <div>
-                <h3 className="font-bold text-gray-900 text-sm md:text-base border-b border-gray-100 pb-2 mb-3">
+                <h3 className="pb-2 mb-3 text-sm font-bold text-gray-900 border-b border-gray-100 md:text-base">
                   Abilities
                 </h3>
                 <div className="flex flex-wrap gap-2">
@@ -220,10 +234,10 @@ export function DetailPage() {
 
               {/* Base Experience */}
               <div>
-                <h3 className="font-bold text-gray-900 text-sm md:text-base border-b border-gray-100 pb-2 mb-2">
+                <h3 className="pb-2 mb-2 text-sm font-bold text-gray-900 border-b border-gray-100 md:text-base">
                   Base Experience
                 </h3>
-                <span className="text-xl md:text-2xl font-black text-purple-600">
+                <span className="text-xl font-black text-purple-600 md:text-2xl">
                   {data.base_experience ? `${data.base_experience} XP` : '0 XP'}
                 </span>
               </div>
@@ -236,4 +250,3 @@ export function DetailPage() {
 }
 
 export default DetailPage
-
