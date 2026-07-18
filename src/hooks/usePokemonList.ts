@@ -6,15 +6,9 @@ import type {
   PokemonListItem,
 } from '../types/pokemon.types'
 
-/**
- * Fetches Pokémon list pages via sequential accumulation, shared by the
- * Load More View and the Infinite Scroll View — both append pages as more
- * are requested, unlike `usePokemonPage`, which jumps directly to an
- * arbitrary page number and replaces the current page's data.
- */
-export function usePokemonList(limit: number) {
+export function usePokemonList(limit: number, viewKey: string) {
   const query = useInfiniteQuery<PokemonListResponse, Error>({
-    queryKey: ['pokemon', 'list', limit],
+    queryKey: ['pokemon', 'list', viewKey, limit],
     queryFn: ({ pageParam }) => getPokemonList(limit, pageParam as number),
     initialPageParam: 0,
     getNextPageParam: (lastPage) => {

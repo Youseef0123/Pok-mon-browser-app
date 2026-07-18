@@ -1,14 +1,23 @@
-import { useVirtualizer } from '@tanstack/react-virtual'
+import { useWindowVirtualizer } from '@tanstack/react-virtual'
 import { useEffect, useRef, useState } from 'react'
 import PokemonCard from '../components/shared/PokemonCard'
 import ErrorState from '../components/ui/ErrorState'
 import { usePokemonList } from '../hooks/usePokemonList'
 import { extractIdFromUrl } from '../utils/pokemon.utils'
 
+const getColumnCount = () => {
+  if (typeof window === 'undefined') return 4
+  const width = window.innerWidth
+  if (width < 640) return 1
+  if (width < 768) return 2
+  if (width < 1024) return 3
+  return 4
+}
+
 export function InfiniteScrollView() {
   const limit = 20
   const parentRef = useRef<HTMLDivElement>(null)
-  const [columns, setColumns] = useState(4)
+  const [columns, setColumns] = useState(() => getColumnCount())
 
   const {
     flatItems,
@@ -19,20 +28,10 @@ export function InfiniteScrollView() {
     isError,
     error,
     refetch,
-  } = usePokemonList(limit)
+  } = usePokemonList(limit, 'infiniteScroll')
 
   // 1. Monitor screen width and update columns matching PokemonGrid breakpoints
   useEffect(() => {
-    const getColumnCount = () => {
-      const width = window.innerWidth
-      if (width < 640) return 1
-      if (width < 768) return 2
-      if (width < 1024) return 3
-      return 4
-    }
-
-    setColumns(getColumnCount())
-
     const handleResize = () => {
       setColumns(getColumnCount())
     }
@@ -41,15 +40,21 @@ export function InfiniteScrollView() {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  // 2. Set up row virtualization
+  // 2. Set up row virtualization using the window scrollbar
   const rowCount = Math.ceil(flatItems.length / columns)
+  const [scrollMargin, setScrollMargin] = useState(0)
 
-  // eslint-disable-next-line react-hooks/incompatible-library
-  const rowVirtualizer = useVirtualizer({
+  useEffect(() => {
+    if (parentRef.current) {
+      setScrollMargin(parentRef.current.offsetTop)
+    }
+  }, [columns])
+
+  const rowVirtualizer = useWindowVirtualizer({
     count: rowCount,
-    getScrollElement: () => parentRef.current,
     estimateSize: () => 280, // Approximate height of card (200px) + gap/padding
     overscan: 3,
+    scrollMargin,
   })
 
   // 3. Automated trigger to fetch next page when scrolling near the end
@@ -85,80 +90,76 @@ export function InfiniteScrollView() {
     )
   }
 
-  // 6. Success state: Virtualized grid
+  // 6. Success state: Virtualized grid mapped to the window viewport
   return (
     <div className="w-full flex flex-col items-center">
-      {/* Scrollable Container (Viewport) */}
+      {/* Grid Container (Parent Ref) */}
       <div
         ref={parentRef}
         key={columns} // Force complete remount on column change to recompute virtual layout cleanly
-        className="w-full h-[70vh] overflow-y-auto rounded-xl border border-gray-200/80 bg-white p-4 shadow-sm"
+        className="w-full relative"
+        style={{ height: `${rowVirtualizer.getTotalSize()}px` }}
       >
-        {/* Inner scroll container with absolute positioning */}
-        <div
-          className="relative w-full"
-          style={{ height: `${rowVirtualizer.getTotalSize()}px` }}
-        >
-          {virtualItems.map((virtualRow) => {
-            const startIndex = virtualRow.index * columns
-            const rowItems = flatItems.slice(startIndex, startIndex + columns)
+        {virtualItems.map((virtualRow) => {
+          const startIndex = virtualRow.index * columns
+          const rowItems = flatItems.slice(startIndex, startIndex + columns)
 
-            return (
+          return (
+            <div
+              key={virtualRow.key}
+              className="absolute top-0 left-0 w-full"
+              style={{
+                height: `${virtualRow.size}px`,
+                transform: `translateY(${virtualRow.start - rowVirtualizer.options.scrollMargin}px)`,
+              }}
+            >
               <div
-                key={virtualRow.key}
-                className="absolute top-0 left-0 w-full"
+                className="grid gap-6 w-full"
                 style={{
-                  height: `${virtualRow.size}px`,
-                  transform: `translateY(${virtualRow.start}px)`,
+                  gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
+                  paddingBottom: '24px', // gap spacing equivalent
                 }}
               >
-                <div
-                  className="grid gap-6 w-full"
-                  style={{
-                    gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
-                    paddingBottom: '24px', // gap spacing equivalent
-                  }}
-                >
-                  {rowItems.map((item) => {
-                     const id = extractIdFromUrl(item.url)
-                     const spriteUrl = id
-                       ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`
-                       : null
+                {rowItems.map((item) => {
+                  const id = extractIdFromUrl(item.url)
+                  const spriteUrl = id
+                    ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`
+                    : null
 
-                     return (
-                       <PokemonCard
-                         key={id}
-                         id={id}
-                         name={item.name}
-                         imageUrl={spriteUrl}
-                       />
-                     )
-                  })}
-                </div>
+                  return (
+                    <PokemonCard
+                      key={id}
+                      id={id}
+                      name={item.name}
+                      imageUrl={spriteUrl}
+                    />
+                  )
+                })}
               </div>
-            )
-          })}
-        </div>
-
-        {/* Bottom loading / completeness indicators */}
-        <div className="mt-8 mb-4 flex justify-center w-full min-h-[40px]">
-          {isFetchingNextPage ? (
-            <div className="flex items-center gap-2" role="status">
-              <div className="w-5 h-5 border-2 border-gray-200 border-t-gray-900 rounded-full animate-spin"></div>
-              <p className="text-gray-500 font-semibold text-xs md:text-sm">
-                Loading more Pokémon...
-              </p>
             </div>
-          ) : !hasNextPage && flatItems.length > 0 ? (
-            <span className="text-xs md:text-sm text-gray-400 font-semibold select-none">
-              You've caught them all! ({flatItems.length} Pokémon shown)
-            </span>
-          ) : null}
-        </div>
+          )
+        })}
+      </div>
+
+      {/* Bottom loading / completeness indicators */}
+      <div className="mt-12 mb-6 flex justify-center w-full min-h-[40px]">
+        {isFetchingNextPage ? (
+          <div className="flex items-center gap-2" role="status">
+            <div className="w-5 h-5 border-2 border-gray-200 border-t-gray-900 rounded-full animate-spin"></div>
+            <p className="text-gray-500 font-semibold text-xs md:text-sm">
+              Loading more Pokémon...
+            </p>
+          </div>
+        ) : !hasNextPage && flatItems.length > 0 ? (
+          <span className="text-xs md:text-sm text-gray-400 font-semibold select-none">
+            You've caught them all! ({flatItems.length} Pokémon shown)
+          </span>
+        ) : null}
       </div>
     </div>
   )
 }
 
 export default InfiniteScrollView
+
 

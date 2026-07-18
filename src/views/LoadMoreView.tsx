@@ -13,7 +13,7 @@ export function LoadMoreView() {
     isError,
     error,
     refetch,
-  } = usePokemonList(limit)
+  } = usePokemonList(limit, 'loadMore')
 
   // 1. Initial loading state (first page, no data loaded yet)
   if (isLoading && flatItems.length === 0) {
