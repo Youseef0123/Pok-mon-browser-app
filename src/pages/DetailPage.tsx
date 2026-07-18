@@ -1,6 +1,6 @@
 import { useParams, Link } from 'react-router-dom'
 import ErrorState from '../components/ui/ErrorState'
-import TypeBadge from '../components/ui/TypeBadge'
+import TypeBadge from '../components/shared/TypeBadge'
 import { usePokemonDetail } from '../hooks/usePokemonDetail'
 
 const statLabelMap: Record<string, string> = {
