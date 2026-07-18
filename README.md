@@ -2,7 +2,7 @@
 
 Frontend assessment project — a Pokémon browser built with React + TypeScript.
 
-**Live:** _[add link after deploying]_
+**Live:** https://pok-mon-browser-app-nu.vercel.app/
 
 ## What's in it
 
@@ -32,11 +32,21 @@ Click any Pokémon and you get a real route (`/pokemon/:id`), not a modal, with 
 
 ## Running it
 
-```bash
-npm install
-cp .env.example .env
-npm run dev
-```
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+2. ⚠️ **Required — create your `.env` file:**
+   ```bash
+   cp .env.example .env
+   ```
+   The app **will not work** without this step — it reads `VITE_API_BASE_URL` from `.env` to reach the PokeAPI. Don't skip it.
+
+3. Start the dev server:
+   ```bash
+   npm run dev
+   ```
 
 ## Structure
 
