@@ -1,10 +1,12 @@
 import axios from 'axios'
 
-const baseURL = import.meta.env.VITE_API_BASE_URL
+const DEFAULT_API_BASE_URL = 'https://pokeapi.co/api/v2'
 
-if (!baseURL) {
+const baseURL = import.meta.env.VITE_API_BASE_URL || DEFAULT_API_BASE_URL
+
+if (!import.meta.env.VITE_API_BASE_URL) {
   console.warn(
-    'VITE_API_BASE_URL is not set. API requests will fail until it is configured.',
+    `VITE_API_BASE_URL is not set. Falling back to ${DEFAULT_API_BASE_URL}. Create a .env file (see .env.example) to configure this explicitly.`,
   )
 }
 
