@@ -1,5 +1,6 @@
 import { useParams, Link } from 'react-router-dom'
 import ErrorState from '../components/ui/ErrorState'
+import DetailSkeleton from '../components/ui/DetailSkeleton'
 import TypeBadge from '../components/shared/TypeBadge'
 import { usePokemonDetail } from '../hooks/usePokemonDetail'
 
@@ -21,12 +22,8 @@ export function DetailPage() {
   // 1. Loading state
   if (isLoading) {
     return (
-      <div
-        className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-purple-100 via-pink-50 to-white py-12 px-4 gap-4"
-        role="status"
-      >
-        <div className="w-10 h-10 border-4 border-gray-200 border-t-purple-600 rounded-full animate-spin"></div>
-        <p className="text-gray-500 font-semibold text-sm">Loading Pokémon...</p>
+      <div className="min-h-screen w-full bg-gradient-to-b from-purple-100 via-pink-50 to-white py-12 px-4 sm:px-6 lg:px-8">
+        <DetailSkeleton />
       </div>
     )
   }
