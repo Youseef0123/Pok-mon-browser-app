@@ -9,7 +9,7 @@ import { extractIdFromUrl } from '../utils/pokemon.utils'
 const getColumnCount = () => {
   if (typeof window === 'undefined') return 4
   const width = window.innerWidth
-  if (width < 640) return 1
+  if (width < 640) return 2
   if (width < 768) return 2
   if (width < 1024) return 3
   return 4
@@ -31,31 +31,30 @@ export function InfiniteScrollView() {
     refetch,
   } = usePokemonList(limit, 'infiniteScroll')
 
-  // 1. Monitor screen width and update columns matching PokemonGrid breakpoints
-  useEffect(() => {
-    const handleResize = () => {
-      setColumns(getColumnCount())
-    }
-
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
-  }, [])
-
-  // 2. Set up row virtualization using the window scrollbar
+  // 1. Set up row virtualization using the window scrollbar
   const rowCount = Math.ceil(flatItems.length / columns)
   const [scrollMargin, setScrollMargin] = useState(0)
 
+  // 2. Monitor screen width and update columns + scrollMargin together on every resize
   useEffect(() => {
-    if (parentRef.current) {
-      setScrollMargin(parentRef.current.offsetTop)
+    const updateLayout = () => {
+      setColumns(getColumnCount())
+      if (parentRef.current) {
+        setScrollMargin(parentRef.current.offsetTop)
+      }
     }
-  }, [columns])
+
+    updateLayout()
+    window.addEventListener('resize', updateLayout)
+    return () => window.removeEventListener('resize', updateLayout)
+  }, [])
 
   const rowVirtualizer = useWindowVirtualizer({
     count: rowCount,
     estimateSize: () => 280, // Approximate height of card (200px) + gap/padding
     overscan: 3,
     scrollMargin,
+    measureElement: (element) => element?.getBoundingClientRect().height ?? 280,
   })
 
   // 3. Automated trigger to fetch next page when scrolling near the end
@@ -103,9 +102,10 @@ export function InfiniteScrollView() {
           return (
             <div
               key={virtualRow.key}
+              data-index={virtualRow.index}
+              ref={rowVirtualizer.measureElement}
               className="absolute top-0 left-0 w-full"
               style={{
-                height: `${virtualRow.size}px`,
                 transform: `translateY(${virtualRow.start - rowVirtualizer.options.scrollMargin}px)`,
               }}
             >
