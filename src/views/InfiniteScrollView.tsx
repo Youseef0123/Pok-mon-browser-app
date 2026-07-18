@@ -2,6 +2,7 @@ import { useWindowVirtualizer } from '@tanstack/react-virtual'
 import { useEffect, useRef, useState } from 'react'
 import PokemonCard from '../components/shared/PokemonCard'
 import ErrorState from '../components/ui/ErrorState'
+import LoadingSkeleton from '../components/ui/LoadingSkeleton'
 import { usePokemonList } from '../hooks/usePokemonList'
 import { extractIdFromUrl } from '../utils/pokemon.utils'
 
@@ -70,12 +71,7 @@ export function InfiniteScrollView() {
 
   // 4. Initial loading state (first page, no data loaded yet)
   if (isLoading && flatItems.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20 gap-4" role="status">
-        <div className="w-10 h-10 border-4 border-gray-200 border-t-gray-900 rounded-full animate-spin"></div>
-        <p className="text-gray-500 font-semibold text-sm">Loading Pokémon...</p>
-      </div>
-    )
+    return <LoadingSkeleton count={20} />
   }
 
   // 5. Error state when no data is loaded yet

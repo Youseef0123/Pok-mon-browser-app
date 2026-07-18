@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import PokemonGrid from '../components/shared/PokemonGrid'
 import ErrorState from '../components/ui/ErrorState'
+import LoadingSkeleton from '../components/ui/LoadingSkeleton'
 import { usePokemonPage } from '../hooks/usePokemonPage'
 
 export function PaginationView() {
@@ -61,12 +62,7 @@ export function PaginationView() {
 
   // 1. Loading state (initial page load only)
   if (isLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20 gap-4" role="status">
-        <div className="w-10 h-10 border-4 border-gray-200 border-t-gray-900 rounded-full animate-spin"></div>
-        <p className="text-gray-500 font-semibold text-sm">Loading Pokémon...</p>
-      </div>
-    )
+    return <LoadingSkeleton count={20} />
   }
 
   // 2. Error state
