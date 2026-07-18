@@ -35,8 +35,14 @@ export function HomePage() {
     }
   }
 
+  const backgroundByView: Record<ViewMode, string> = {
+    pagination: 'from-blue-50/60 via-indigo-50/20 to-white',
+    loadMore: 'from-amber-50/70 via-yellow-50/30 to-white',
+    infiniteScroll: 'from-emerald-50/70 via-green-50/30 to-white',
+  }
+
   return (
-    <div className="min-h-screen w-full bg-gradient-to-b from-blue-50/60 via-indigo-50/20 to-white py-12 px-4 sm:px-6 lg:px-8">
+    <div className={`min-h-screen w-full bg-gradient-to-b transition-colors duration-300 py-12 px-4 sm:px-6 lg:px-8 ${backgroundByView[activeView]}`}>
       <div className="max-w-7xl mx-auto flex flex-col items-center">
         {/* Header Section */}
         <header className="text-center mb-8 flex flex-col items-center">

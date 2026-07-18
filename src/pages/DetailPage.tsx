@@ -22,7 +22,7 @@ export function DetailPage() {
   if (isLoading) {
     return (
       <div
-        className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-purple-50/40 via-pink-50/20 to-white py-12 px-4 gap-4"
+        className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-purple-100 via-pink-50 to-white py-12 px-4 gap-4"
         role="status"
       >
         <div className="w-10 h-10 border-4 border-gray-200 border-t-purple-600 rounded-full animate-spin"></div>
@@ -34,7 +34,7 @@ export function DetailPage() {
   // 2. Error state
   if (isError || !data) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-purple-50/40 via-pink-50/20 to-white py-12 px-4 gap-6">
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-purple-100 via-pink-50 to-white py-12 px-4 gap-6">
         <ErrorState
           message={error?.message ?? 'Pokémon details could not be found.'}
           onRetry={refetch}
@@ -55,7 +55,7 @@ export function DetailPage() {
   const spriteUrl = data.sprites.other?.['official-artwork']?.front_default || data.sprites.front_default
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-b from-purple-50/40 via-pink-50/20 to-white py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen w-full bg-gradient-to-b from-purple-100 via-pink-50 to-white py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-2xl mx-auto flex flex-col items-start gap-4">
         {/* Back Link Button */}
         <Link
