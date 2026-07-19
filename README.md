@@ -23,6 +23,13 @@ Click any Pokémon and you get a real route (`/pokemon/:id`), not a modal, with 
 - Tailwind
 - `@tanstack/react-virtual` for the infinite scroll grid
 
+## Bonus stuff I added
+
+- **React Query** for fetching, caching, and retries (not just the basic requirement — used it properly with isolated cache keys per view)
+- **Error Boundary** wrapping the app so an unexpected render crash shows a recoverable screen instead of a blank page
+- **A third view** (Infinite Scroll) on top of the two required ones, built with actual grid virtualization instead of just rendering everything
+- Selected view + scroll position persist when navigating to a detail page and back
+
 ## A few things worth mentioning
 
 - Height/weight from the API come in decimetres/hectograms, not m/kg — I convert them at the display level, kept the raw values in the type.
@@ -33,14 +40,17 @@ Click any Pokémon and you get a real route (`/pokemon/:id`), not a modal, with 
 ## Running it
 
 1. Install dependencies:
+
    ```bash
    npm install
    ```
 
 2. ⚠️ **Required — create your `.env` file:**
+
    ```bash
    cp .env.example .env
    ```
+
    The app **will not work** without this step — it reads `VITE_API_BASE_URL` from `.env` to reach the PokeAPI. Don't skip it.
 
 3. Start the dev server:
